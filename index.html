@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>iWebInfo</title>
+		<style>
+			body {
+				background: linear-gradient(#77777A 0%, #99999C 80%, #99999C 100%);
+				background-size: 100vw 100vh;
+				text-align: center;
+				height: 89vh;
+				padding-top: 11vh;
+			}
+			.button {
+				border-radius: 100%;
+				background: linear-gradient(#789, #567);
+				border: solid 2px #678;
+				box-shadow: 6px 6px #567;
+				width: 4vw;
+				height: 4vw;
+				display: flex;
+				justify-content: center;
+				font-size: 3vw;
+				color: #DEF;
+				position: absolute;
+				align-items: center;
+			}
+			.button.pressed {
+				background: linear-gradient(#567, #345);
+				color: #ABC;
+				box-shadow: 2px 2px #789;
+				margin-top: 4px;
+				/********************
+				 * I know that the  *
+				 * negative margin  *
+				 * looks stupid,    *
+				 * but otherwise    *
+				 * it does nothing  *
+				 * so I did it :/   *
+				 ********************/
+				margin-right: -4px;
+			}
+			#add {
+				right: 0.5vw;
+				top: calc(0.5vw - 4px);
+			}
+			#header {
+				position: absolute;
+				top: 0;
+				left: 0;
+				width: 100vw;
+				height: 5vw;
+				background: linear-gradient(#444450 0%, #000 80%, #000 100%);
+				text-align: center;
+				line-height: 5vw;
+				font-size: 3vw;
+				color: #DEF;
+			}
+		</style>
+		<script>
+			var debug = false;
+			window.onerror = () => {
+				alert(Array.from(arguments).join("\n"));
+			};
+			function addDeviceToView(device) {
+				if(device != undefined) {
+					device.open();
+					if(device.configuration == null) {
+						device.selectConfiguration(1);
+					};
+					device.claimInterface(1);
+					let j = {},
+							devicemodel = device.productName + device.deviceVersionMajor + "," + device.deviceVersionMinor;
+					for(var i in device) j[i] = device[i];
+					let str = JSON.stringify(j);
+					document.querySelector('#deviceInfo').innerText = "\n\nClass: " + device.productName
+						+ (debug ? ("\nManufacturer: " + device.manufacturerName) : "")
+						+ "\nUDID: " + device.serialNumber
+						+ "\nModel: " + devicemodel + (debug ? (
+						+ "\nMore info:\n"
+						+ str) : "");
+					let data = "Hello iPad";
+					let promise = device.transferOut(data, data).then(d => {
+						document.querySelector('#deviceInfo').innerText += d;
+					});
+				};
+			};
+			document.addEventListener('DOMContentLoaded', async event => {
+				let devices = await navigator.usb.getDevices();
+				addDeviceToView(devices[0]);
+			});
+			window.onload = evt => {
+				navigator.usb.addEventListener('connect', async event => {
+					let devices = await navigator.usb.getDevices();
+					addDeviceToView(devices[0]);
+				});
+				navigator.usb.addEventListener('disconnect', async event => {
+					let devices = await navigator.usb.getDevices();
+					document.querySelector('#deviceInfo').innerText = "";
+				});
+				let addBtn = document.querySelector('div#add');
+				addBtn.addEventListener('mousedown', evt => {
+					evt.preventDefault();
+					addBtn.classList.add('pressed');
+				});
+				addBtn.addEventListener('click', evt => {
+					let device;
+					try {
+						device = navigator.usb.requestDevice({
+							filters: []
+						});
+					} catch(err) {
+						alert("You need to select a device!");
+					}
+					if(device != undefined) {
+						doThingsWith(device);
+					};
+				});
+				addBtn.addEventListener('mouseup', evt => {
+					evt.preventDefault();
+					addBtn.classList.remove('pressed');
+				});
+			};
+		</script>
+	</head>
+	<body>
+		<div id='header'>
+			iWebInfo by iPG1101
+			<div id='add' class='button'>+</div>
+		</div>
+		<span id='deviceInfo'></span>
+	</body>
+</html>
