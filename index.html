@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<title>iDeviceTool</title>
+		<style>
+			* {
+				overflow: hidden;
+			}
+			body {
+				background: black;
+				background-image: url(background.png);
+				background-size: 100vw 75vw;
+				background-repeat: repeat-x;
+				font-family: "Helvetica NeueUI", "Helvetica Neue", "Helvetica";
+			}
+			#dock {
+				display: block;
+				position: absolute;
+				bottom: -2.5vw;
+				width: 90vw;
+				left: 5vw;
+				height: 18vh;
+				border-radius: 0.75vw;
+				background: rgba(0, 0, 5, 0.6);
+			}
+			#menu, #credits {
+				left: 0;
+				background: linear-gradient(#222, #111);
+				display: block;
+				position: absolute;
+			}
+			#menu {
+				top: 0;
+				height: 6.20vh;
+				width: 100vw;
+			}
+			#credits {
+				top: 6.20vh;
+				height: 21vh;
+				width: 15vw;
+				display: none;
+			}
+			.menu_itm {
+				border-right: solid 0.1vw #221;
+				color: white;
+				display: inline-block;
+				font-weight: bold;
+				font-size: 3.15vh;
+				line-height: 6.20vh;
+				padding: 0 1.25vw; 
+				text-align: center;
+				border-top: solid 0.05vw #221;
+				cursor: pointer;
+			}
+			.menu_itm:hover {
+				background: linear-gradient(#44B, #22A);
+			}
+			.app {
+				height: 11vh;
+				top: 2%;
+				display: inline-block;
+				width: 11vh;
+				border-radius: 4vh;
+				background-size: 11vh 11vh;
+			}
+			.w {
+				padding: 0;
+				width: 90%;
+				padding-left: 10%;
+				text-align: left;
+			}
+			#disp {
+				position: absolute;
+				width: 75vw;
+				left: 11.5vw;
+				height: 75vh;
+				top: 15.5vh;
+				color: #EEF;
+				background: #111115;
+				box-shadow: 1vw 1vw 4vw rgba(0, 0, 0, 0.5);
+				border-radius: 1vw 1vw 0.5vw 0.5vw;
+			}
+			#disp::before {
+				content: "iDeviceTool";
+				text-align: center;
+				display: block;
+				position: absolute;
+				width: 102%;
+				height: 6vh;
+				color: #EEF;
+				font-weight: bold;
+				line-height: 6vh;
+				font-size: 3.75vh;
+				text-shadow: -0.1vw 0 #555;
+				top: 0;
+				right: 0;
+				background: #000;
+			}
+			#display {
+				width: 90%;
+				height: 93%;
+				margin-top: 7%;
+				margin-left: 5%;
+				margin-right: 5%;
+				line-height: 4.5vh;
+				font-size: 3.5vh;
+			}
+			a {
+				text-decoration: none;
+			}
+		</style>
+		<script>
+			const DEBUG = true;
+			window.onerror = function onerror() {
+				var ZWJ = String.fromCharCode(8205);
+				var sp = ZWJ + " ";
+				var err = 
+						(DEBUG ? 
+							Array.from(arguments).join("\n" + sp.repeat(5)) : 
+						 	"An error has occured- make sure you are using Chrome 61 or later, because this program uses features only available in those versions."
+						 );
+				var disp = document.querySelector("#display");
+				if(disp) {
+					disp.innerText = err;
+					disp.style.color = 'red';
+				} else {
+					alert(err);
+				};
+			};
+		</script>
+		<script src='pwnage.js'></script>
+	</head>
+	<body>
+		<div id='disp'>
+			<div id='display'></div>
+		</div>
+		<div id='credits'>
+			<a class='menu_itm w'>Credits: </a>
+			<a class='menu_itm w' href='https://www.twitter.com/iPhoneGuy1101' target='_blank'> &zwj; iPG1101</a><br/>
+			<a class='menu_itm w' href='https://www.twitter.com/userlandkernel' target='_blank'> &zwj; UKERN Software</a>
+		</div>
+		<div id='menu'>
+			<a class='menu_itm' onclick='Pwnage.getUI().showCredits(event)'>@</a>
+			<a class='menu_itm' onclick='Pwnage.getUI().addDevice(event)'>Pair Device in Mode...</a>
+			<a class='menu_itm' onclick='Pwnage.getUI().pwnDevice(event)'>Pwn Device...</a>
+			<a class='menu_itm' onclick='Pwnage.getUI().sendRamdisk(event)'>Send Ramdisk..</a>
+		</div>
+	</body>
+</html>
