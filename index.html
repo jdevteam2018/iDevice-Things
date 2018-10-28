@@ -56,10 +56,43 @@
 				color: #DEF;
 			}
 		</style>
-		<script>
-			var debug = false;
+		<script id='errhandler'>
 			window.onerror = () => {
 				alert(Array.from(arguments).join("\n"));
+			}; //This get's it's own script so if I make a typo I see that I did and what line. I do not have dev console as of writing, school blocks it :/
+		</script>
+		<script>
+			var debug = false;
+			function sendFile(device, filename) {
+				let xmlReq = new XMLHttpRequest();
+				xmlReq.open("GET", filename, true);
+				xmlReq.addEventListener("progess", async evt => {
+					document.querySelector("#deviceInfo").innerHTML += "<br/><br/>" + JSON.stringify(evt);
+				});
+				xmlReq.addEventListener("readystatechange", async evt => {
+					if(xmlReq.readyState == 4 && xmlReq.status == 200) {
+						let data = xmlReq.response;
+						/* 2048 bytes at once max */
+						let buffers2K = [], buffer2K;
+						for(var i = 0; i < data.length; i++) {
+							buffer2K += data[i];
+							if(buffer2K.length == 0x800) {
+								buffers2K.push(buffer2K);
+								buffer2K = "";
+							};
+						};
+						for(var i = 0; i < buffers2K.length; i++) {
+							let promise = device.transferOut(buffers2K[i], data).then(d => {
+								document.querySelector('#deviceInfo').innerText += d;
+							});
+						};
+					} else {
+						let res_short = xmlReq.response;
+						res_short.length = 40; // Prevent extremely long logs
+						document.querySelector('#deviceInfo').innerHTML += "<br/><br/>XHR: Step " + xmlReq.readyState + "/4<br/>Status Code: " + xmlReq.status + "&gt;<br/>Data: " + (((res_short) + ((xmlReq.response.length == res_short.length) ? "" : "...")) || "no");
+					};
+				});
+				xmlReq.send();
 			};
 			function addDeviceToView(device) {
 				if(device != undefined) {
@@ -78,10 +111,8 @@
 						+ "\nModel: " + devicemodel + (debug ? (
 						+ "\nMore info:\n"
 						+ str) : "");
-					let data = "Hello iPad";
-					let promise = device.transferOut(data, data).then(d => {
-						document.querySelector('#deviceInfo').innerText += d;
-					});
+					sendFile(device, "Pwned_iBSS.iPad1,1.K48AP");
+					sendFile(device, "Pwned_iBEC.iPad1,1.K48AP");
 				};
 			};
 			document.addEventListener('DOMContentLoaded', async event => {
